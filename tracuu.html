@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tra cứu kết quả xét nghiệm</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border: 1px solid #ccc;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Tra cứu kết quả xét nghiệm</h2>
+
+<input type="text" id="name" placeholder="Họ tên" />
+<input type="text" id="phone" placeholder="Số điện thoại" />
+<button onclick="checkResult()">Xem kết quả</button>
+
+<div class="result" id="resultBox"></div>
+
+<script>
+  async function checkResult() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const resultBox = document.getElementById("resultBox");
+
+    if (!name || !phone) {
+      alert("Vui lòng nhập đủ họ tên và số điện thoại.");
+      return;
+    }
+
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbyr8Jt8gvCnJDoGChPCt9y1DtX32TKfqYNuZYf63cejBwSmBl5IkwHlYFFqE1KPGOg/exec';
+    const url = `${apiUrl}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.error) {
+        resultBox.innerHTML = `<p style="color:red">${data.error}</p>`;
+      } else {
+        resultBox.innerHTML = `
+          <p><strong>Họ tên:</strong> ${data.name}</p>
+          <p><strong>Kết quả:</strong> ${data.result}</p>
+          <p><strong>Ngày xét nghiệm:</strong> ${data.date}</p>
+          <p><a href="${data.pdf}" target="_blank">Xem file kết quả</a></p>
+        `;
+      }
+      resultBox.style.display = 'block';
+    } catch (error) {
+      resultBox.innerHTML = `<p style="color:red">Không thể kết nối máy chủ. Vui lòng thử lại.</p>`;
+      resultBox.style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>
